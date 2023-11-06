@@ -68,18 +68,20 @@ const io = require("socket.io")(server, {
   },
 });
 
-io.on("connection", (socketClient) => {
-//   console.log(socketClient.id);
+const users = [];
 
+io.on("connection", (socketClient) => {
   socketClient.on("joinChat", (name) => {
     socketClient.join("group-chat");
     const welcomeMessage = `${name} has joined the chat.`;
     io.to("group-chat").emit("chat message", welcomeMessage);
+    users.push(name);
+    io.to("group-chat").emit("user joined", name);
 
     socketClient.on("chat message", (message) => {
-      const chatMessage = `${name}: ${message}`;
-      io.to("group-chat").emit("chat message", chatMessage);
+      io.to("group-chat").emit("chat message", message);
     });
+
   });
 });
 
